@@ -95,7 +95,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
   <div class="topbar">
     <div class="topbar-inner">
       <div class="topbar-left">
-        <div class="app-icon">ðŸ“‹</div>
+        <div class="app-icon" style="font-size:16px;color:#fff;font-weight:700">P</div>
         <div>
           <h1>Pendientes</h1>
           <p id="topSub">Todo bajo control</p>
@@ -108,15 +108,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
   <div class="content">
     <div class="filtros">
       <button class="filtro-btn active-all" id="filtroTodos" onclick="setFiltro('todos')">Todos</button>
-      <button class="filtro-btn" id="filtroUrgente" onclick="setFiltro('urgente')">ðŸ”´ Urgente</button>
-      <button class="filtro-btn" id="filtroNormal" onclick="setFiltro('normal')">ðŸ”µ Normal</button>
+      <button class="filtro-btn" id="filtroUrgente" onclick="setFiltro('urgente')">! Urgente</button>
+      <button class="filtro-btn" id="filtroNormal" onclick="setFiltro('normal')">· Normal</button>
     </div>
     <div id="lista"></div>
   </div>
 
   <div class="bottom-bar">
     <div class="input-area">
-      <input type="text" class="text-input" id="textInput" placeholder='Ej: "Llamar al mÃ©dico"' onkeydown="if(event.key==='Enter')agregarPendiente()"/>
+      <input type="text" class="text-input" id="textInput" placeholder='Ej: "Llamar al médico"' onkeydown="if(event.key==='Enter')agregarPendiente()"/>
       <button class="mic-btn" id="micBtn" onclick="toggleMic()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
@@ -128,7 +128,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
     </div>
     <div class="prioridad-row">
       <button class="prio-btn selected-normal" id="prioNormal" onclick="setPrioridad('normal')">Normal</button>
-      <button class="prio-btn" id="prioUrgente" onclick="setPrioridad('urgente')">ðŸ”´ Urgente</button>
+      <button class="prio-btn" id="prioUrgente" onclick="setPrioridad('urgente')">! Urgente</button>
     </div>
     <button class="add-btn" id="addBtn" onclick="agregarPendiente()">Agregar pendiente</button>
   </div>
@@ -209,9 +209,9 @@ function renderLista(){
   if(!filtrados.length){
     const msg = filtro === 'urgente' ? 'Sin pendientes urgentes' : filtro === 'normal' ? 'Sin pendientes normales' : 'No hay pendientes';
     el.innerHTML = `<div class="empty-state">
-      <div class="empty-icon">${filtro==='urgente'?'âœ…':'ðŸ“‹'}</div>
+      <div class="empty-icon">${''}</div>
       <div class="empty-text">${msg}</div>
-      <div class="empty-sub">UsÃ¡ el micrÃ³fono o escribÃ­ abajo</div>
+      <div class="empty-sub">Usá el micrófono o escribí abajo</div>
     </div>`;
     return;
   }
@@ -226,11 +226,11 @@ function renderLista(){
       <div class="p-content">
         <div class="p-texto">${p.texto}</div>
         <div class="p-meta">
-          <span class="p-badge ${p.prioridad==='urgente'?'badge-urgente':'badge-normal'}">${p.prioridad==='urgente'?'URGENTE':'NORMAL'}</span>
+          <span class="p-badge ${p.prioridad==='urgente'?'badge-urgente':'badge-normal'}">${p.prioridad==='urgente'?'! URGENTE':'· NORMAL'}</span>
           <span class="p-fecha">${p.fecha}</span>
         </div>
       </div>
-      <button class="del-btn" onclick="eliminar(${p.id})" title="Eliminar">âœ•</button>
+      <button class="del-btn" onclick="eliminar(${p.id})" title="Eliminar">✕</button>
     </div>`).join('');
 }
 
@@ -245,7 +245,7 @@ function updateHeader(){
 
 function toggleMic(){
   if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)){
-    document.getElementById('textInput').placeholder = 'EscribÃ­ el pendiente acÃ¡';
+    document.getElementById('textInput').placeholder = 'Escribí el pendiente acá';
     return;
   }
   if(isRecording){ recognition.stop(); return; }
@@ -268,12 +268,12 @@ function toggleMic(){
   recognition.onend = () => {
     isRecording = false;
     document.getElementById('micBtn').classList.remove('recording');
-    document.getElementById('textInput').placeholder = 'Ej: "Llamar al mÃ©dico"';
+    document.getElementById('textInput').placeholder = 'Ej: "Llamar al médico"';
   };
   recognition.onerror = () => {
     isRecording = false;
     document.getElementById('micBtn').classList.remove('recording');
-    document.getElementById('textInput').placeholder = 'Error de micrÃ³fono';
+    document.getElementById('textInput').placeholder = 'Error de micrófono';
   };
   recognition.start();
 }
