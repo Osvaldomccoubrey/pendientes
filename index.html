@@ -2,335 +2,106 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Pendientes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#1a1a2e">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pendientes</title>
+
 <style>
-:root {
-  --bg:#f0f0f5; --card:#fff; --border:#e4e4e8;
-  --text:#1a1a1a; --muted:#666; --faint:#aaa;
-  --urgente:#c0392b; --urgente-bg:#fef2f2; --urgente-border:#fcd5d5;
-  --normal:#0C447C; --normal-bg:#E6F1FB; --normal-border:#b5d4f4;
-  --green:#0a6e45; --green-bg:#f0fdf4;
-  --radius:14px; --radius-sm:10px;
-  --safe-top:env(safe-area-inset-top,0px);
-  --safe-bottom:env(safe-area-inset-bottom,0px);
+body { font-family: Arial; margin:0; background:#f4f4f4; }
+
+.header {
+  background:#1e2a44;
+  color:white;
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;overflow:hidden;}
-body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;background:var(--bg);color:var(--text);}
-.app{display:flex;flex-direction:column;height:100vh;height:100dvh;}
-.topbar{background:#1a1a2e;padding:calc(var(--safe-top)+12px) 18px 14px;flex-shrink:0;}
-.topbar-inner{display:flex;align-items:center;justify-content:space-between;}
-.topbar-left{display:flex;align-items:center;gap:10px;}
-.app-icon{width:32px;height:32px;background:rgba(255,255,255,.15);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;font-weight:700;}
-.topbar h1{font-size:18px;font-weight:700;color:#fff;letter-spacing:-.3px;}
-.topbar p{font-size:12px;color:rgba(255,255,255,.6);margin-top:1px;}
-.count-badge{background:rgba(255,255,255,.15);color:#fff;font-size:12px;font-weight:600;padding:4px 10px;border-radius:100px;display:flex;align-items:center;gap:6px;}
-.count-audio{cursor:pointer;user-select:none;line-height:1;}
-.count-audio:active{transform:scale(.95);}
-.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(80px + var(--safe-bottom));}
-.filtros{display:flex;gap:8px;margin-bottom:14px;}
-.filtro-btn{flex:1;padding:8px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--card);font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;}
-.filtro-btn.active-all{background:#1a1a2e;color:#fff;border-color:#1a1a2e;}
-.filtro-btn.active-urgente{background:var(--urgente-bg);color:var(--urgente);border-color:var(--urgente);}
-.filtro-btn.active-normal{background:var(--normal-bg);color:var(--normal);border-color:var(--normal);}
-.pendiente-item{background:var(--card);border-radius:var(--radius-sm);padding:13px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;border-left:4px solid var(--border);position:relative;transition:transform .2s,opacity .2s;}
-.pendiente-item.urgente{border-left-color:var(--urgente);background:#fffafa;}
-.pendiente-item.normal{border-left-color:var(--normal);background:#fafcff;}
-.pendiente-item.completando{transform:translateX(100%);opacity:0;}
-.check-btn{width:24px;height:24px;border-radius:50%;border:2px solid var(--faint);background:transparent;cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
-.pendiente-item.urgente .check-btn{border-color:var(--urgente);}
-.pendiente-item.normal .check-btn{border-color:var(--normal);}
-.check-btn:active{transform:scale(.9);}
-.p-content{flex:1;min-width:0;}
-.p-texto{font-size:15px;font-weight:500;color:var(--text);line-height:1.4;word-break:break-word;}
-.p-meta{display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap;}
-.p-fecha{font-size:11px;color:var(--faint);}
-.p-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;letter-spacing:.03em;}
-.badge-urgente{background:var(--urgente-bg);color:var(--urgente);}
-.badge-normal{background:var(--normal-bg);color:var(--normal);}
-.del-btn{width:28px;height:28px;border:none;background:none;cursor:pointer;color:var(--faint);font-size:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:50%;}
-.del-btn:active{color:var(--urgente);background:var(--urgente-bg);}
-.empty-state{text-align:center;padding:3rem 1rem;color:var(--faint);}
-.empty-icon{font-size:48px;margin-bottom:12px;}
-.empty-text{font-size:15px;font-weight:500;color:var(--muted);}
-.empty-sub{font-size:13px;margin-top:4px;}
-.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);padding:12px 14px calc(12px + var(--safe-bottom));z-index:100;}
-.input-area{display:flex;gap:8px;align-items:center;}
-.text-input{flex:1;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:15px;outline:none;background:#fafafa;color:var(--text);}
-.text-input:focus{border-color:#1a1a2e;background:#fff;}
-.mic-btn{width:46px;height:46px;border-radius:50%;border:2px solid var(--border);background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
-.mic-btn svg{width:20px;height:20px;color:#444;}
-.mic-btn.recording{border-color:var(--urgente);background:var(--urgente-bg);animation:pulse 1s infinite;}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
-.prioridad-row{display:flex;gap:8px;margin-top:10px;}
-.prio-btn{flex:1;padding:9px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--card);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;}
-.prio-btn.selected-urgente{background:var(--urgente-bg);color:var(--urgente);border-color:var(--urgente);}
-.prio-btn.selected-normal{background:var(--normal-bg);color:var(--normal);border-color:var(--normal);}
-.prio-btn:not(.selected-urgente):not(.selected-normal){color:var(--muted);}
-.add-btn{width:100%;padding:11px;border-radius:var(--radius-sm);border:none;background:#1a1a2e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px;transition:opacity .15s;}
-.add-btn:active{opacity:.85;}
-.add-btn:disabled{opacity:.4;}
+
+.count-badge {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:18px;
+}
+
+.lista {
+  padding:15px;
+}
+
+.item {
+  background:white;
+  padding:10px;
+  margin-bottom:10px;
+  border-radius:8px;
+}
 </style>
 </head>
+
 <body>
-<div class="app">
-  <div class="topbar">
-    <div class="topbar-inner">
-      <div class="topbar-left">
-        <div class="app-icon">P</div>
-        <div>
-          <h1>Pendientes</h1>
-          <p id="topSub">Todo bajo control</p>
-        </div>
-      </div>
-      <div class="count-badge" id="countBadgeWrap">
-        <span id="countBadge">0</span>
-        <span id="btnLeerPendientes" style="display:flex;align-items:center;cursor:pointer;">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-    <path d="M3 9v6h4l5 5V4L7 9H3z"></path>
-    <path d="M14.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.74 2.5-2.26 2.5-4.02z"></path>
-  </svg>
-</span>
-      </div>
-    </div>
-  </div>
 
-  <div class="content">
-    <div class="filtros">
-      <button class="filtro-btn active-all" id="filtroTodos" onclick="setFiltro('todos')">Todos</button>
-      <button class="filtro-btn" id="filtroUrgente" onclick="setFiltro('urgente')">! Urgente</button>
-      <button class="filtro-btn" id="filtroNormal" onclick="setFiltro('normal')">Â· Normal</button>
-    </div>
-    <div id="lista"></div>
-  </div>
+<div class="header">
+  <div>Pendientes</div>
 
-  <div class="bottom-bar">
-    <div class="input-area">
-      <input type="text" class="text-input" id="textInput" placeholder='Ej: "Llamar al mÃ©dico"' onkeydown="if(event.key==='Enter')agregarPendiente()"/>
-      <button class="mic-btn" id="micBtn" onclick="toggleMic()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-          <line x1="12" y1="19" x2="12" y2="23"/>
-          <line x1="8" y1="23" x2="16" y2="23"/>
-        </svg>
-      </button>
-    </div>
-    <div class="prioridad-row">
-      <button class="prio-btn selected-normal" id="prioNormal" onclick="setPrioridad('normal')">Normal</button>
-      <button class="prio-btn" id="prioUrgente" onclick="setPrioridad('urgente')">! Urgente</button>
-    </div>
-    <button class="add-btn" id="addBtn" onclick="agregarPendiente()">Agregar pendiente</button>
+  <div class="count-badge">
+    <span id="countBadge">0</span>
+
+    <span id="btnLeerPendientes" style="
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:28px;
+      height:28px;
+      border-radius:50%;
+      background:rgba(255,255,255,0.15);
+      cursor:pointer;
+    ">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="white">
+        <path d="M3 9v6h4l5 5V4L7 9H3z"></path>
+        <path d="M14.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.74 2.5-2.26 2.5-4.02z"></path>
+        <path d="M16.5 7.5a6 6 0 0 1 0 9" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"></path>
+      </svg>
+    </span>
   </div>
 </div>
 
+<div class="lista" id="lista"></div>
+
 <script>
-let pendientes = JSON.parse(localStorage.getItem('pendientes_v1') || '[]');
-let prioridad = 'normal';
-let filtro = 'todos';
-let recognition = null;
-let isRecording = false;
+let pendientes = [
+  { texto:"Actualizar sistema", prioridad:"urgente" },
+  { texto:"Llamar al médico", prioridad:"normal" }
+];
 
-function guardar(){
-  localStorage.setItem('pendientes_v1', JSON.stringify(pendientes));
+function render() {
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+  pendientes.forEach(p => {
+    lista.innerHTML += `<div class="item">${p.texto}</div>`;
+  });
+  document.getElementById("countBadge").innerText = pendientes.length;
 }
 
-function setPrioridad(p){
-  prioridad = p;
-  document.getElementById('prioNormal').className = 'prio-btn' + (p==='normal'?' selected-normal':'');
-  document.getElementById('prioUrgente').className = 'prio-btn' + (p==='urgente'?' selected-urgente':'');
-}
+document.getElementById("btnLeerPendientes").addEventListener("click", () => {
+  if (!speechSynthesis) return alert("No soportado");
 
-function setFiltro(f){
-  filtro = f;
-  document.getElementById('filtroTodos').className = 'filtro-btn' + (f==='todos'?' active-all':'');
-  document.getElementById('filtroUrgente').className = 'filtro-btn' + (f==='urgente'?' active-urgente':'');
-  document.getElementById('filtroNormal').className = 'filtro-btn' + (f==='normal'?' active-normal':'');
-  renderLista();
-}
+  let texto = `Tenés ${pendientes.length} tareas pendientes. `;
 
-function agregarPendiente(){
-  const texto = document.getElementById('textInput').value.trim();
-  if(!texto) return;
-  const item = {
-    id: Date.now(),
-    texto,
-    prioridad,
-    fecha: new Date().toLocaleDateString('es-AR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})
-  };
-  if(prioridad === 'urgente'){
-    const primerNormal = pendientes.findIndex(p => p.prioridad === 'normal');
-    if(primerNormal === -1) pendientes.push(item);
-    else pendientes.splice(primerNormal, 0, item);
-  } else {
-    pendientes.push(item);
-  }
-  guardar();
-  document.getElementById('textInput').value = '';
-  renderLista();
-  updateHeader();
-}
-
-function completar(id){
-  const el = document.getElementById('item-'+id);
-  if(el){
-    el.classList.add('completando');
-    setTimeout(()=>{
-      pendientes = pendientes.filter(p => p.id !== id);
-      guardar();
-      renderLista();
-      updateHeader();
-    }, 200);
-  }
-}
-
-function eliminar(id){
-  pendientes = pendientes.filter(p => p.id !== id);
-  guardar();
-  renderLista();
-  updateHeader();
-}
-
-function renderLista(){
-  const el = document.getElementById('lista');
-  const filtrados = filtro === 'todos' ? pendientes : pendientes.filter(p => p.prioridad === filtro);
-
-  if(!filtrados.length){
-    const msg = filtro === 'urgente' ? 'Sin pendientes urgentes' : filtro === 'normal' ? 'Sin pendientes normales' : 'No hay pendientes';
-    el.innerHTML = `<div class="empty-state">
-      <div class="empty-icon"></div>
-      <div class="empty-text">${msg}</div>
-      <div class="empty-sub">UsÃ¡ el micrÃ³fono o escribÃ­ abajo</div>
-    </div>`;
-    return;
-  }
-
-  el.innerHTML = filtrados.map(p => `
-    <div class="pendiente-item ${p.prioridad}" id="item-${p.id}">
-      <button class="check-btn" onclick="completar(${p.id})" title="Marcar como hecho">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-          <path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <div class="p-content">
-        <div class="p-texto">${escapeHtml(p.texto)}</div>
-        <div class="p-meta">
-          <span class="p-badge ${p.prioridad==='urgente'?'badge-urgente':'badge-normal'}">${p.prioridad==='urgente'?'! URGENTE':'Â· NORMAL'}</span>
-          <span class="p-fecha">${escapeHtml(p.fecha)}</span>
-        </div>
-      </div>
-      <button class="del-btn" onclick="eliminar(${p.id})" title="Eliminar">âœ•</button>
-    </div>`).join('');
-}
-
-function updateHeader(){
-  const total = pendientes.length;
-  const urgentes = pendientes.filter(p => p.prioridad === 'urgente').length;
-  document.getElementById('countBadge').textContent = total;
-  document.getElementById('topSub').textContent = urgentes > 0
-    ? urgentes + ' urgente' + (urgentes > 1 ? 's' : '')
-    : total > 0 ? total + ' pendiente' + (total > 1 ? 's' : '') : 'Todo bajo control';
-}
-
-function obtenerPendientesVisibles(){
-  return filtro === 'todos'
-    ? pendientes
-    : pendientes.filter(p => p.prioridad === filtro);
-}
-
-function leerPendientes(){
-  if (!('speechSynthesis' in window)) {
-    alert('Este dispositivo no soporta lectura por voz.');
-    return;
-  }
-
-  const visibles = obtenerPendientesVisibles();
-
-  if (!visibles.length) {
-    hablarTexto('No tenÃ©s pendientes.');
-    return;
-  }
-
-  let texto = `TenÃ©s ${visibles.length} tarea${visibles.length > 1 ? 's' : ''} pendiente${visibles.length > 1 ? 's' : ''}. `;
-
-  visibles.forEach(p => {
-    const desc = (p.texto || '').trim();
-    if (!desc) return;
-
-    if (p.prioridad === 'urgente') {
-      texto += `Tarea importante: ${desc}. `;
+  pendientes.forEach(p => {
+    if (p.prioridad === "urgente") {
+      texto += `Tarea importante: ${p.texto}. `;
     } else {
-      texto += `Tarea: ${desc}. `;
+      texto += `Tarea: ${p.texto}. `;
     }
   });
 
-  hablarTexto(texto);
-}
+  let msg = new SpeechSynthesisUtterance(texto);
+  msg.lang = "es-AR";
+  speechSynthesis.cancel();
+  speechSynthesis.speak(msg);
+});
 
-function hablarTexto(texto){
-  window.speechSynthesis.cancel();
-  const msg = new SpeechSynthesisUtterance(texto);
-  msg.lang = 'es-AR';
-  msg.rate = 1;
-  msg.pitch = 1;
-  const voces = window.speechSynthesis.getVoices();
-  const vozEs = voces.find(v => v.lang && v.lang.toLowerCase().includes('es'));
-  if (vozEs) msg.voice = vozEs;
-  window.speechSynthesis.speak(msg);
-}
-
-function escapeHtml(str){
-  return String(str)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#039;');
-}
-
-function toggleMic(){
-  if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)){
-    document.getElementById('textInput').placeholder = 'EscribÃ­ el pendiente acÃ¡';
-    return;
-  }
-  if(isRecording){ recognition.stop(); return; }
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SR();
-  recognition.lang = 'es-AR';
-  recognition.interimResults = false;
-  recognition.onstart = () => {
-    isRecording = true;
-    document.getElementById('micBtn').classList.add('recording');
-    document.getElementById('textInput').placeholder = 'Escuchando...';
-  };
-  recognition.onresult = (e) => {
-    const t = e.results[0][0].transcript;
-    document.getElementById('textInput').value = t;
-    const urgente = /urgent|importante|ya|hoy|ahora|llamar|pagar|vence/i.test(t);
-    if(urgente) setPrioridad('urgente');
-  };
-  recognition.onend = () => {
-    isRecording = false;
-    document.getElementById('micBtn').classList.remove('recording');
-    document.getElementById('textInput').placeholder = 'Ej: "Llamar al mÃ©dico"';
-  };
-  recognition.onerror = () => {
-    isRecording = false;
-    document.getElementById('micBtn').classList.remove('recording');
-    document.getElementById('textInput').placeholder = 'Error de micrÃ³fono';
-  };
-  recognition.start();
-}
-
-document.getElementById('btnLeerPendientes').addEventListener('click', leerPendientes);
-renderLista();
-updateHeader();
+render();
 </script>
+
 </body>
 </html>
