@@ -13,9 +13,8 @@
 :root {
   --bg:#f0f0f5; --card:#fff; --border:#e4e4e8;
   --text:#1a1a1a; --muted:#666; --faint:#aaa;
-  --urgente:#c0392b; --urgente-bg:#fef2f2; --urgente-border:#fcd5d5;
-  --normal:#0C447C; --normal-bg:#E6F1FB; --normal-border:#b5d4f4;
-  --green:#0a6e45; --green-bg:#f0fdf4;
+  --urgente:#c0392b; --urgente-bg:#fef2f2;
+  --normal:#0C447C; --normal-bg:#E6F1FB;
   --radius:14px; --radius-sm:10px;
   --safe-top:env(safe-area-inset-top,0px);
   --safe-bottom:env(safe-area-inset-bottom,0px);
@@ -24,8 +23,6 @@
 html,body{height:100%;overflow:hidden;}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;background:var(--bg);color:var(--text);}
 .app{display:flex;flex-direction:column;height:100vh;height:100dvh;}
-
-/* HEADER */
 .topbar{background:#1a1a2e;padding:calc(var(--safe-top)+12px) 18px 14px;flex-shrink:0;}
 .topbar-inner{display:flex;align-items:center;justify-content:space-between;}
 .topbar-left{display:flex;align-items:center;gap:10px;}
@@ -37,24 +34,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
   padding:4px 8px;border-radius:100px;display:flex;align-items:center;gap:6px;
 }
 .read-btn{
-  display:flex;align-items:center;justify-content:center; width:22px;height:22px;
-  border-radius:50%; background:rgba(255,255,255,.10); cursor:pointer; flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;width:22px;height:22px;
+  border-radius:50%;background:rgba(255,255,255,.10);cursor:pointer;flex-shrink:0;
 }
-.read-btn svg{display:block}
-.read-btn.reading{background:rgba(255,255,255,.28); animation:pulseRead 1s infinite;}
+.read-btn.reading{background:rgba(255,255,255,.28);animation:pulseRead 1s infinite;}
 @keyframes pulseRead{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
-
-/* CONTENT */
 .content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(80px + var(--safe-bottom));}
-
-/* FILTROS */
 .filtros{display:flex;gap:8px;margin-bottom:14px;}
 .filtro-btn{flex:1;padding:8px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--card);font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s;}
 .filtro-btn.active-all{background:#1a1a2e;color:#fff;border-color:#1a1a2e;}
 .filtro-btn.active-urgente{background:var(--urgente-bg);color:var(--urgente);border-color:var(--urgente);}
 .filtro-btn.active-normal{background:var(--normal-bg);color:var(--normal);border-color:var(--normal);}
-
-/* PENDIENTES */
 .pendiente-item{background:var(--card);border-radius:var(--radius-sm);padding:13px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;border-left:4px solid var(--border);position:relative;transition:transform .2s,opacity .2s;}
 .pendiente-item.urgente{border-left-color:var(--urgente);background:#fffafa;}
 .pendiente-item.normal{border-left-color:var(--normal);background:#fafcff;}
@@ -72,13 +62,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 .badge-normal{background:var(--normal-bg);color:var(--normal);}
 .del-btn{width:28px;height:28px;border:none;background:none;cursor:pointer;color:var(--faint);font-size:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:50%;}
 .del-btn:active{color:var(--urgente);background:var(--urgente-bg);}
-
 .empty-state{text-align:center;padding:3rem 1rem;color:var(--faint);}
-.empty-icon{font-size:48px;margin-bottom:12px;}
 .empty-text{font-size:15px;font-weight:500;color:var(--muted);}
 .empty-sub{font-size:13px;margin-top:4px;}
-
-/* BOTTOM BAR */
 .bottom-bar{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);padding:12px 14px calc(12px + var(--safe-bottom));z-index:100;}
 .input-area{display:flex;gap:8px;align-items:center;}
 .text-input{flex:1;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:15px;outline:none;background:#fafafa;color:var(--text);}
@@ -94,7 +80,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 .prio-btn:not(.selected-urgente):not(.selected-normal){color:var(--muted);}
 .add-btn{width:100%;padding:11px;border-radius:var(--radius-sm);border:none;background:#1a1a2e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px;transition:opacity .15s;}
 .add-btn:active{opacity:.85;}
-.add-btn:disabled{opacity:.4;}
 </style>
 </head>
 <body>
@@ -157,6 +142,7 @@ let filtro = 'todos';
 let recognition = null;
 let isRecording = false;
 let speaking = false;
+let colaLectura = [];
 
 function guardar(){
   localStorage.setItem('pendientes_v1', JSON.stringify(pendientes));
@@ -220,6 +206,15 @@ function eliminar(id){
 
 function obtenerPendientesVisibles(){
   return filtro === 'todos' ? pendientes : pendientes.filter(p => p.prioridad === filtro);
+}
+
+function escapeHtml(text){
+  return String(text)
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'","&#039;");
 }
 
 function renderLista(){
@@ -296,77 +291,93 @@ function toggleMic(){
   recognition.start();
 }
 
-function escapeHtml(text){
-  return String(text)
-    .replaceAll('&','&amp;')
-    .replaceAll('<','&lt;')
-    .replaceAll('>','&gt;')
-    .replaceAll('"','&quot;')
-    .replaceAll("'","&#039;");
+function numeroEnPalabras(n){
+  const mapa = {
+    1:'uno', 2:'dos', 3:'tres', 4:'cuatro', 5:'cinco',
+    6:'seis', 7:'siete', 8:'ocho', 9:'nueve', 10:'diez',
+    11:'once', 12:'doce', 13:'trece', 14:'catorce', 15:'quince',
+    16:'dieciséis', 17:'diecisiete', 18:'dieciocho', 19:'diecinueve', 20:'veinte'
+  };
+  return mapa[n] || String(n);
 }
 
-function hablarTexto(texto){
+function detenerLectura(){
+  window.speechSynthesis.cancel();
+  speaking = false;
+  colaLectura = [];
+  document.getElementById('btnLeerPendientes').classList.remove('reading');
+}
+
+function hablarSecuencia(partes){
   if(!('speechSynthesis' in window)){
     alert('Este dispositivo no soporta lectura por voz.');
     return;
   }
 
   window.speechSynthesis.cancel();
+  colaLectura = [...partes];
+  speaking = true;
+  document.getElementById('btnLeerPendientes').classList.add('reading');
 
-  const msg = new SpeechSynthesisUtterance();
-  msg.text = texto;
-  msg.lang = 'es-AR';
-  msg.rate = 1;
-  msg.pitch = 1;
+  const siguiente = () => {
+    if(!colaLectura.length){
+      speaking = false;
+      document.getElementById('btnLeerPendientes').classList.remove('reading');
+      return;
+    }
 
-  const voces = window.speechSynthesis.getVoices();
-  const voz = voces.find(v => v.lang && v.lang.toLowerCase().includes('es'));
-  if (voz) msg.voice = voz;
+    const texto = colaLectura.shift();
+    const msg = new SpeechSynthesisUtterance(texto);
+    msg.lang = 'es-AR';
+    msg.rate = 0.90;
+    msg.pitch = 1;
 
-  const btn = document.getElementById('btnLeerPendientes');
-  msg.onstart = () => {
-    speaking = true;
-    btn.classList.add('reading');
+    const voces = window.speechSynthesis.getVoices();
+    const voz = voces.find(v => v.lang && v.lang.toLowerCase().includes('es'));
+    if (voz) msg.voice = voz;
+
+    msg.onend = () => {
+      setTimeout(siguiente, 600);
+    };
+
+    msg.onerror = () => {
+      detenerLectura();
+    };
+
+    window.speechSynthesis.speak(msg);
   };
-  msg.onend = () => {
-    speaking = false;
-    btn.classList.remove('reading');
-  };
-  msg.onerror = () => {
-    speaking = false;
-    btn.classList.remove('reading');
-  };
 
-  window.speechSynthesis.speak(msg);
+  siguiente();
 }
 
 function leerPendientes(){
   if(speaking){
-    window.speechSynthesis.cancel();
-    speaking = false;
-    document.getElementById('btnLeerPendientes').classList.remove('reading');
+    detenerLectura();
     return;
   }
 
   const visibles = obtenerPendientesVisibles();
 
-  let texto = '';
   if(!visibles.length){
-    texto = 'No tenés pendientes.';
-  } else {
-    texto = `Tenés ${visibles.length} tarea${visibles.length > 1 ? 's' : ''} pendiente${visibles.length > 1 ? 's' : ''}. `;
-    visibles.forEach(p => {
-      if(!p.texto) return;
-      if(p.prioridad === 'urgente'){
-        texto += `Tarea importante: ${p.texto}. `;
-      } else {
-        texto += `Tarea: ${p.texto}. `;
-      }
-    });
+    hablarSecuencia(['No tenés pendientes.']);
+    return;
   }
 
-  texto = texto.replace(/\s+/g, ' ').trim();
-  hablarTexto(texto);
+  const partes = [];
+  partes.push(`Tenés ${visibles.length} tarea${visibles.length > 1 ? 's' : ''} pendiente${visibles.length > 1 ? 's' : ''}.`);
+
+  visibles.forEach((p, i) => {
+    const n = i + 1;
+    if(!p.texto) return;
+
+    if(p.prioridad === 'urgente'){
+      partes.push(`Tarea ${numeroEnPalabras(n)}. Importante. ${p.texto}.`);
+    } else {
+      partes.push(`Tarea ${numeroEnPalabras(n)}. ${p.texto}.`);
+    }
+  });
+
+  hablarSecuencia(partes);
 }
 
 document.getElementById('btnLeerPendientes').addEventListener('click', leerPendientes);
@@ -381,7 +392,6 @@ if('speechSynthesis' in window){
   window.speechSynthesis.onvoiceschanged = function(){ window.speechSynthesis.getVoices(); };
 }
 
-// Init
 renderLista();
 updateHeader();
 </script>
