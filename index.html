@@ -6,40 +6,44 @@
 <title>Pendientes</title>
 
 <style>
-body { font-family: Arial; margin:0; background:#f4f4f4; }
+body {
+  font-family: Arial;
+  margin: 0;
+  background: #f4f4f4;
+}
 
-.header {
-  background:#1e2a44;
-  color:white;
-  padding:15px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+.topbar {
+  background: #1e2a44;
+  color: white;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .count-badge {
-  display:flex;
-  align-items:center;
-  gap:6px;
-  font-size:18px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 18px;
 }
 
 .lista {
-  padding:15px;
+  padding: 15px;
 }
 
 .item {
-  background:white;
-  padding:10px;
-  margin-bottom:10px;
-  border-radius:8px;
+  background: white;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
+<div class="topbar">
   <div>Pendientes</div>
 
   <div class="count-badge">
@@ -67,40 +71,96 @@ body { font-family: Arial; margin:0; background:#f4f4f4; }
 <div class="lista" id="lista"></div>
 
 <script>
-let pendientes = [
-  { texto:"Actualizar sistema", prioridad:"urgente" },
-  { texto:"Llamar al médico", prioridad:"normal" }
-];
 
-function render() {
+// ====== DATOS ======
+let pendientes = JSON.parse(localStorage.getItem('pendientes_v1') || '[]');
+let filtro = 'todos';
+
+// ====== RENDER ======
+function renderLista() {
   const lista = document.getElementById("lista");
   lista.innerHTML = "";
-  pendientes.forEach(p => {
-    lista.innerHTML += `<div class="item">${p.texto}</div>`;
+
+  const visibles = obtenerPendientesVisibles();
+
+  visibles.forEach(p => {
+    lista.innerHTML += `
+      <div class="item">
+        ${p.texto}
+      </div>
+    `;
   });
-  document.getElementById("countBadge").innerText = pendientes.length;
 }
 
-document.getElementById("btnLeerPendientes").addEventListener("click", () => {
-  if (!speechSynthesis) return alert("No soportado");
+// ====== HEADER ======
+function updateHeader() {
+  document.getElementById("countBadge").innerText = obtenerPendientesVisibles().length;
+}
 
-  let texto = `Tenés ${pendientes.length} tareas pendientes. `;
+// ====== FILTRO ======
+function obtenerPendientesVisibles() {
+  return filtro === 'todos'
+    ? pendientes
+    : pendientes.filter(p => p.prioridad === filtro);
+}
 
-  pendientes.forEach(p => {
-    if (p.prioridad === "urgente") {
-      texto += `Tarea importante: ${p.texto}. `;
-    } else {
-      texto += `Tarea: ${p.texto}. `;
-    }
-  });
+// ====== VOZ ======
+document.getElementById("btnLeerPendientes").addEventListener("click", leerPendientes);
 
-  let msg = new SpeechSynthesisUtterance(texto);
-  msg.lang = "es-AR";
+function leerPendientes() {
+  if (!('speechSynthesis' in window)) {
+    alert('Este dispositivo no soporta voz.');
+    return;
+  }
+
+  const visibles = obtenerPendientesVisibles();
+
   speechSynthesis.cancel();
-  speechSynthesis.speak(msg);
-});
 
-render();
+  let texto = '';
+
+  if (!visibles.length) {
+    texto = 'No tenés pendientes.';
+  } else {
+    texto = `Tenés ${visibles.length} tarea${visibles.length > 1 ? 's' : ''} pendiente${visibles.length > 1 ? 's' : ''}. `;
+
+    visibles.forEach(p => {
+      if (!p.texto) return;
+
+      if (p.prioridad === 'urgente') {
+        texto += `Tarea importante: ${p.texto}. `;
+      } else {
+        texto += `Tarea: ${p.texto}. `;
+      }
+    });
+  }
+
+  texto = texto.replace(/\s+/g, ' ').trim();
+
+  hablarTexto(texto);
+}
+
+function hablarTexto(texto) {
+  speechSynthesis.cancel();
+
+  const msg = new SpeechSynthesisUtterance();
+  msg.text = texto;
+
+  msg.lang = 'es-AR';
+  msg.rate = 1;
+  msg.pitch = 1;
+
+  const voces = speechSynthesis.getVoices();
+  const voz = voces.find(v => v.lang && v.lang.includes('es'));
+  if (voz) msg.voice = voz;
+
+  speechSynthesis.speak(msg);
+}
+
+// ====== INIT ======
+renderLista();
+updateHeader();
+
 </script>
 
 </body>
